@@ -3,6 +3,8 @@
 import React, { createContext, use } from 'react'
 
 export type SidebarTabsContextType = {
+  /** The slug of the currently active tab. */
+  activeTabId: string
   /**
    * Reload the content for a specific tab, bypassing the cache.
    * Useful when the tab's data dependencies change.
@@ -13,15 +15,19 @@ export type SidebarTabsContextType = {
 const SidebarTabsContext = createContext<null | SidebarTabsContextType>(null)
 
 export type SidebarTabsProviderProps = {
+  activeTabId: string
   children: React.ReactNode
   reloadTabContent: (tabSlug: string) => void
 }
 
 export const SidebarTabsProvider: React.FC<SidebarTabsProviderProps> = ({
+  activeTabId,
   children,
   reloadTabContent,
 }) => {
-  return <SidebarTabsContext value={{ reloadTabContent }}>{children}</SidebarTabsContext>
+  return (
+    <SidebarTabsContext value={{ activeTabId, reloadTabContent }}>{children}</SidebarTabsContext>
+  )
 }
 
 /**

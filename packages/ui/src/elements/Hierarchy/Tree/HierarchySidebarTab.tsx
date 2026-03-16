@@ -64,16 +64,19 @@ export const HierarchySidebarTab: React.FC<
   } = useHierarchy()
   const sidebarTabs = useSidebarTabs()
 
-  // When refreshTree() is called from the list view (e.g. after mutations), reload this tab.
-  // HierarchySidebarTab is rendered inside SidebarTabsProvider so it can call reloadTabContent,
-  // unlike HierarchyListHeader which is in the main content area outside the provider.
+  // When refreshTree() is called from the list view (e.g. after mutations), reload this tab —
+  // but only if it's currently active. Inactive tabs pick up fresh data when switched to.
+  const tabSlug = `hierarchy-${hierarchyCollectionSlug}`
+  const isTabActive = sidebarTabs?.activeTabId === tabSlug
   const prevTreeRefreshKeyRef = useRef(treeRefreshKey)
   useEffect(() => {
     if (prevTreeRefreshKeyRef.current !== treeRefreshKey) {
       prevTreeRefreshKeyRef.current = treeRefreshKey
-      sidebarTabs?.reloadTabContent(`hierarchy-${hierarchyCollectionSlug}`)
+      if (isTabActive) {
+        sidebarTabs?.reloadTabContent(tabSlug)
+      }
     }
-  }, [treeRefreshKey, sidebarTabs, hierarchyCollectionSlug])
+  }, [treeRefreshKey, sidebarTabs, tabSlug, isTabActive])
 
   // Only show selection if the current list view matches this tab's hierarchy collection
   const parentParam = searchParams.get('parent')

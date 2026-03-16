@@ -169,7 +169,7 @@ export const SidebarTabsClient: React.FC<SidebarTabsClientProps> = ({
   }
 
   return (
-    <SidebarTabsProvider reloadTabContent={reloadTabContent}>
+    <SidebarTabsProvider activeTabId={activeTabID} reloadTabContent={reloadTabContent}>
       <div className={baseClass}>
         <div className={`${baseClass}__tabs`} role="tablist">
           {tabs.map((tab, index) => {
