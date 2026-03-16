@@ -98,6 +98,16 @@ export const TreeNode = ({
     }
   }, [isFocused])
 
+  // Auto-load children when expanded and data is absent — handles programmatic expansion
+  // (e.g. from list/search) and tree remounts after refresh (where cache is empty).
+  // Guarded by `children === null` so it never fires when data is already present,
+  // preventing flashes on navigation where children are pre-loaded from initialData.
+  React.useEffect(() => {
+    if (expanded && children === null) {
+      void load()
+    }
+  }, [expanded, load, children])
+
   // Determine if node has children:
   // - If explicitly set in data, use that
   // - If expanded and loaded, check the actual children

@@ -321,7 +321,7 @@ export const HierarchyColumnBrowser = function HierarchyColumnBrowser({
   // Auto-scroll to the last column when columns change
   useEffect(() => {
     if (lastColumnRef.current && columns.length > 1) {
-      lastColumnRef.current.scrollIntoView({ behavior: 'smooth', inline: 'start' })
+      lastColumnRef.current.scrollIntoView({ behavior: 'instant', inline: 'start' })
     }
   }, [columns.length])
 

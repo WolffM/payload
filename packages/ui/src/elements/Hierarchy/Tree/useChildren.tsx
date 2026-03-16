@@ -295,6 +295,10 @@ export const useChildren = ({
     setPage(1)
     return fetchPage(1, null)
   }, [cache, cacheKey, fetchPage])
+  // If state hasn't been loaded yet, read directly from cache as a synchronous fallback.
+  // Tree's useMemo pre-populates the cache before child TreeNodes render, so this eliminates
+  // the brief null-children flash that occurs when a node becomes expanded after context updates.
+  const effectiveChildren = children ?? cache?.current.get(cacheKey)?.children ?? null
 
-  return { children, hasMore, isLoading, load, loadMore, refresh, totalDocs }
+  return { children: effectiveChildren, hasMore, isLoading, load, loadMore, refresh, totalDocs }
 }

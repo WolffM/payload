@@ -3,7 +3,7 @@
 import { getTranslation } from '@payloadcms/translations'
 import { useRouter } from 'next/navigation.js'
 import { DEFAULT_HIERARCHY_TREE_LIMIT } from 'payload/shared'
-import React, { useCallback, useId, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react'
 
 import type { CachedChildren, HierarchyTreeProps, TreeDocument } from './types.js'
 
@@ -82,10 +82,25 @@ const HierarchyTreeInner: React.FC<HierarchyTreeProps> = ({
   const contextBaseFilterKey = contextData?.baseFilter ? JSON.stringify(contextData.baseFilter) : ''
   const initialData =
     baseFilterKey === contextBaseFilterKey ? (contextData ?? initialDataProp) : initialDataProp
+  // Tracks whether context has been seeded at least once since the last navigation.
+  // Resets when initialExpandedNodesProp changes (new array reference = navigation).
+  // Allows the memo to distinguish "not yet seeded" (fall back to prop) from
+  // "user collapsed all nodes" (trust empty context).
+  const contextSeededRef = useRef(false)
+  const lastInitialExpandedRef = useRef(initialExpandedNodesProp)
+  if (lastInitialExpandedRef.current !== initialExpandedNodesProp) {
+    lastInitialExpandedRef.current = initialExpandedNodesProp
+    contextSeededRef.current = false
+  }
 
   const expandedNodes = useMemo(() => {
     const contextExpanded = getExpandedNodesForCollection(collectionSlug)
     if (contextExpanded.size > 0) {
+      contextSeededRef.current = true
+      return contextExpanded
+    }
+    if (contextSeededRef.current) {
+      // Context was seeded (had nodes since last navigation) — trust empty set as "all collapsed"
       return contextExpanded
     }
     return initialExpandedNodesProp ? new Set(initialExpandedNodesProp) : contextExpanded
@@ -93,9 +108,34 @@ const HierarchyTreeInner: React.FC<HierarchyTreeProps> = ({
 
   const handleToggleNode = useCallback(
     ({ id }: { id: number | string }) => {
+      // Mark context as seeded so the memo never falls back to the prop after this interaction.
+      // Capture the previous value first — seeding is only needed on the very first interaction.
+      const wasSeeded = contextSeededRef.current
+      contextSeededRef.current = true
+      const contextExpanded = getExpandedNodesForCollection(collectionSlug)
+      if (!wasSeeded && contextExpanded.size === 0 && initialExpandedNodesProp?.length) {
+        // Context not yet seeded. Seed it with all initial nodes, applying the toggle correctly:
+        // exclude the target if collapsing, include it if expanding.
+        const initialSet = new Set(initialExpandedNodesProp.map(String))
+        const isCurrentlyExpanded = initialSet.has(String(id))
+        for (const nodeId of initialExpandedNodesProp) {
+          if (!isCurrentlyExpanded || String(nodeId) !== String(id)) {
+            toggleNodeForCollection(collectionSlug, nodeId)
+          }
+        }
+        if (!isCurrentlyExpanded) {
+          toggleNodeForCollection(collectionSlug, id)
+        }
+        return
+      }
       toggleNodeForCollection(collectionSlug, id)
     },
-    [collectionSlug, toggleNodeForCollection],
+    [
+      collectionSlug,
+      getExpandedNodesForCollection,
+      initialExpandedNodesProp,
+      toggleNodeForCollection,
+    ],
   )
 
   // Pre-populate cache with initialData synchronously before first render
@@ -154,6 +194,7 @@ const HierarchyTreeInner: React.FC<HierarchyTreeProps> = ({
     children: rootNodes,
     hasMore,
     isLoading,
+    load: loadRootNodes,
     loadMore: loadMoreFromHook,
     refresh,
     totalDocs,
@@ -171,6 +212,14 @@ const HierarchyTreeInner: React.FC<HierarchyTreeProps> = ({
     typeFieldName,
     useAsTitle,
   })
+
+  // Load root nodes on mount. Handles the case where initialData is unavailable (e.g. after
+  // refreshTree() clears server-provided data). load() is idempotent — no-ops if already loaded.
+  const loadRootNodesRef = useRef(loadRootNodes)
+  loadRootNodesRef.current = loadRootNodes
+  useEffect(() => {
+    void loadRootNodesRef.current()
+  }, [])
 
   const handleLoadMore = useCallback(async () => {
     await loadMoreFromHook()

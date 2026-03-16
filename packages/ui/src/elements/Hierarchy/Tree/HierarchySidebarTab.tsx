@@ -4,7 +4,7 @@ import type { SidebarTabClientProps } from 'payload'
 
 import { useRouter, useSearchParams } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 
 import type { HierarchyInitialData } from './types.js'
 
@@ -71,8 +71,16 @@ export const HierarchySidebarTab: React.FC<
 
   const baseFilterKey = baseFilter ? JSON.stringify(baseFilter) : ''
 
-  // Skip initialData when tree has been manually refreshed
-  const effectiveInitialData = treeRefreshKey === 0 ? initialData : null
+  // Block the stale initialData snapshot captured at refresh time, but allow any newer
+  // initialData that arrives once router.refresh() completes (contains the fresh tree).
+  const initialDataAtRefreshRef = useRef(initialData)
+  const prevTreeRefreshKeyRef = useRef(treeRefreshKey)
+  if (prevTreeRefreshKeyRef.current !== treeRefreshKey) {
+    prevTreeRefreshKeyRef.current = treeRefreshKey
+    initialDataAtRefreshRef.current = initialData
+  }
+  const effectiveInitialData =
+    treeRefreshKey === 0 || initialData !== initialDataAtRefreshRef.current ? initialData : null
 
   const handleFilterChange = useCallback(
     (filters: string[]) => {
