@@ -961,17 +961,12 @@ describe('Localization', () => {
       await expect(paragraph).not.toHaveCSS('direction', 'rtl')
     })
 
-    test('should type Arabic text right-to-left in the Lexical editor', async () => {
+    test('should have RTL direction in the Lexical editor before typing', async () => {
       await page.goto(richTextURL.create)
       await changeLocale(page, 'ar')
 
-      const editor = page.locator('.rich-text-lexical .ContentEditable__root')
-      await editor.click()
-      await page.keyboard.type('مرحبا')
-
-      await expect(editor).toContainText('مرحبا')
-
-      // Direction should be RTL after typing
+      // Even before typing, the empty paragraph should be RTL due to our CSS fix.
+      // Without the fix, dir="auto" on an empty paragraph defaults to LTR.
       const paragraph = page.locator('.rich-text-lexical .ContentEditable__root p').first()
       await expect(paragraph).toHaveCSS('direction', 'rtl')
     })
