@@ -1,8 +1,8 @@
 export { FieldDiffContainer } from '../../elements/FieldDiffContainer/index.js'
 export { FieldDiffLabel } from '../../elements/FieldDiffLabel/index.js'
-export { HierarchyButton } from '../../elements/HierarchyButton/index.server.js'
-export { HierarchyField } from '../../elements/HierarchyField/index.server.js'
-export { HierarchySidebarTabServer } from '../../elements/HierarchyTree/HierarchySidebarTab.server.js'
+export { HierarchyButton } from '../../elements/Hierarchy/DocHeaderButton/index.server.js'
+export { HierarchyField } from '../../elements/Hierarchy/Field/index.server.js'
+export { HierarchySidebarTabServer } from '../../elements/Hierarchy/Tree/HierarchySidebarTab.server.js'
 export {
   escapeDiffHTML,
   getHTMLDiffComponents,

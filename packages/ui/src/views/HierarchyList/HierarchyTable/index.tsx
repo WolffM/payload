@@ -12,7 +12,7 @@ import * as qs from 'qs-esm'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import type { CollectionOption } from '../../../elements/CreateDocumentButton/index.js'
-import type { HierarchyDocument } from '../../../elements/HierarchyTree/types.js'
+import type { HierarchyDocument } from '../../../elements/Hierarchy/Tree/types.js'
 import type { SlotColumn } from './SlotTable.js'
 import type { RelatedGroup, TableRow } from './types.js'
 

@@ -5,8 +5,8 @@ import React, { Fragment } from 'react'
 import { DeleteMany_v4 } from '../../../elements/DeleteMany/index.js'
 import { useDocumentDrawer } from '../../../elements/DocumentDrawer/index.js'
 import { EditMany_v4 } from '../../../elements/EditMany/index.js'
+import { MoveMany } from '../../../elements/Hierarchy/MoveMany/index.js'
 import { ListSelection_v4, ListSelectionButton } from '../../../elements/ListSelection/index.js'
-import { MoveMany } from '../../../elements/MoveMany/index.js'
 import { PublishMany_v4 } from '../../../elements/PublishMany/index.js'
 import { UnpublishMany_v4 } from '../../../elements/UnpublishMany/index.js'
 import { useConfig } from '../../../providers/Config/index.js'
@@ -147,7 +147,7 @@ export const DocumentListSelection: React.FC<DocumentListSelectionProps> = ({
         ),
         hierarchySlug && (
           <MoveMany
-            currentFolderId={parent?.id || null}
+            currentParentID={parent?.id || null}
             hierarchySlug={hierarchySlug}
             Icon={hierarchyIcon}
             key="bulk-move"

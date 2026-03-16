@@ -429,7 +429,6 @@ function injectSidebarTab({
         },
         Icon,
       },
-      dynamic: true,
       label: hierarchyCollection.labels?.plural || hierarchyCollection.slug,
     })
   }

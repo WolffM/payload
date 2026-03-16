@@ -15,10 +15,11 @@ import type { RenderTabServerFnArgs, RenderTabServerFnReturnType } from './rende
 import { TabError } from './TabError/index.js'
 
 export type TabMetadata = {
-  dynamic?: boolean
   icon: React.ReactNode
   isDefaultActive?: boolean
   label: string
+  /** Whether this tab can be loaded/revalidated via serverFunction */
+  lazyLoadable?: boolean
   slug: string
 }
 
@@ -54,21 +55,24 @@ export const SidebarTabsClient: React.FC<SidebarTabsClientProps> = ({
   // Update cached content when server provides new initialTabContents
   // This is needed because useState only uses initialValue on first mount
   React.useEffect(() => {
-    // Update the cache with new server-rendered content
     tabContentRef.current = { ...tabContentRef.current, ...initialTabContents }
     setTabContent((prev) => ({ ...prev, ...initialTabContents }))
   }, [initialTabContents])
 
   const loadTabContent = useCallback(
-    async (tabSlug: string) => {
-      // Check if already loaded or currently loading
-      if (tabContentRef.current[tabSlug] || loadingTabsRef.current.has(tabSlug)) {
+    async (tabSlug: string, { revalidate = false }: { revalidate?: boolean } = {}) => {
+      const hasCachedContent = Boolean(tabContentRef.current[tabSlug])
+
+      // Skip if already loaded (unless revalidating) or currently loading
+      if ((hasCachedContent && !revalidate) || loadingTabsRef.current.has(tabSlug)) {
         return
       }
 
-      // Mark as loading
+      // Mark as loading - only show spinner if no cached content
       loadingTabsRef.current.add(tabSlug)
-      setLoadingTab(tabSlug)
+      if (!hasCachedContent) {
+        setLoadingTab(tabSlug)
+      }
 
       try {
         const result = (await serverFunction({
@@ -84,6 +88,11 @@ export const SidebarTabsClient: React.FC<SidebarTabsClientProps> = ({
         tabContentRef.current = newContent
         setTabContent(newContent)
       } catch (error) {
+        // On revalidate failure, keep showing cached content
+        if (hasCachedContent && revalidate) {
+          return
+        }
+
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
         const handleRetry = () => {
@@ -127,15 +136,12 @@ export const SidebarTabsClient: React.FC<SidebarTabsClientProps> = ({
     (slug: string) => {
       setActiveTabID(slug)
       void setPreference(PREFERENCE_KEYS.NAV_SIDEBAR_ACTIVE_TAB, { activeTab: slug })
-
+      // Only revalidate tabs that can be loaded via serverFunction
+      // Pre-rendered React elements (like default nav) can't be revalidated
       const tab = tabs.find((t) => t.slug === slug)
-      if (tab?.dynamic) {
-        reloadTabContent(slug)
-      } else {
-        void loadTabContent(slug)
-      }
+      void loadTabContent(slug, { revalidate: tab?.lazyLoadable ?? false })
     },
-    [setPreference, loadTabContent, reloadTabContent, tabs],
+    [setPreference, loadTabContent, tabs],
   )
 
   const handleTabKeyDown = useCallback(

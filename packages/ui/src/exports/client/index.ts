@@ -73,7 +73,7 @@ export { AnimateHeight } from '../../elements/AnimateHeight/index.js'
 export { PillSelector, type SelectablePill } from '../../elements/PillSelector/index.js'
 export { Card } from '../../elements/Card/index.js'
 export { Collapsible, useCollapsible } from '../../elements/Collapsible/index.js'
-export { HierarchySidebarTab } from '../../elements/HierarchyTree/HierarchySidebarTab.js'
+export { HierarchySidebarTab } from '../../elements/Hierarchy/Tree/HierarchySidebarTab.js'
 export { CopyLocaleData } from '../../elements/CopyLocaleData/index.js'
 export { CopyToClipboard } from '../../elements/CopyToClipboard/index.js'
 export { DeleteMany } from '../../elements/DeleteMany/index.js'
@@ -103,24 +103,7 @@ export { GenerateConfirmation } from '../../elements/GenerateConfirmation/index.
 export { Gutter } from '../../elements/Gutter/index.js'
 export { Hamburger } from '../../elements/Hamburger/index.js'
 export { HydrateAuthProvider } from '../../elements/HydrateAuthProvider/index.js'
-export { HydrateHierarchyProvider } from '../../elements/HydrateHierarchyProvider/index.js'
-
-// Tree components
-export { Tree } from '../../elements/Tree/index.js'
-export { LoadMore } from '../../elements/Tree/LoadMore/index.js'
-export { TreeConnector } from '../../elements/Tree/TreeConnector.js'
-export { TreeFocusProvider, useTreeFocus } from '../../elements/Tree/TreeFocusContext.js'
-export { TreeNode } from '../../elements/Tree/TreeNode/index.js'
-export type {
-  CachedChildren,
-  TreeCache,
-  TreeDocument,
-  TreeInitialData,
-  TreeNodeData,
-  TreeNodeProps,
-  TreeProps,
-} from '../../elements/Tree/types.js'
-export { useChildren } from '../../elements/Tree/useChildren.js'
+export { HydrateHierarchyProvider } from '../../elements/Hierarchy/HydrateProvider/index.js'
 
 export { Locked } from '../../elements/Locked/index.js'
 export { ListControls } from '../../elements/ListControls/index.js'
@@ -132,22 +115,22 @@ export type {
   RenderListServerFnReturnType,
   UseListDrawer,
 } from '../../elements/ListDrawer/types.js'
-export { HierarchyButtonClient } from '../../elements/HierarchyButton/index.js'
-export type { HierarchyButtonClientProps } from '../../elements/HierarchyButton/index.js'
-export { HierarchyFieldClient } from '../../elements/HierarchyField/index.client.js'
-export type { HierarchyFieldClientProps } from '../../elements/HierarchyField/index.client.js'
+export { HierarchyButtonClient } from '../../elements/Hierarchy/DocHeaderButton/index.js'
+export type { HierarchyButtonClientProps } from '../../elements/Hierarchy/DocHeaderButton/index.js'
+export { HierarchyFieldClient } from '../../elements/Hierarchy/Field/index.client.js'
+export type { HierarchyFieldClientProps } from '../../elements/Hierarchy/Field/index.client.js'
 export {
   formatHierarchyDrawerSlug,
   HierarchyDrawerToggler,
   useHierarchyDrawer,
-} from '../../elements/HierarchyDrawer/index.js'
+} from '../../elements/Hierarchy/Drawer/useHierarchyDrawer.js'
 export type {
   HierarchyDrawerProps,
   HierarchyDrawerTogglerProps,
   SelectionWithPath,
   UseHierarchyDrawer,
   UseHierarchyDrawerArgs,
-} from '../../elements/HierarchyDrawer/types.js'
+} from '../../elements/Hierarchy/Drawer/types.js'
 export { ListSelection } from '../../views/List/ListSelection/index.js'
 export { CollectionListHeader as ListHeader } from '../../views/List/ListHeader/index.js'
 export { GroupByHeader } from '../../views/List/GroupByHeader/index.js'

@@ -102,13 +102,15 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = (props) => {
       initialTabContents={initialTabContents}
       tabs={tabs.map((tab) => {
         const labelText = tab.label ? getTranslation(tab.label, i18n) : tab.slug
+        // CustomComponents can be lazy-loaded/revalidated, React elements cannot
+        const isLazyLoadable = !React.isValidElement(tab.components.Content)
 
         return {
           slug: tab.slug,
-          dynamic: tab.dynamic,
           icon: renderComponent(tab.components.Icon),
           isDefaultActive: tab.isDefaultActive,
           label: labelText,
+          lazyLoadable: isLazyLoadable,
         }
       })}
     />
