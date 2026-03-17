@@ -1169,6 +1169,68 @@ describe('Trash', () => {
   })
 
   describe('Localized fields', () => {
+    test('should preserve localized field data for all locales when trashing a draft document from the edit view', async ({
+      page,
+    }) => {
+      const localizedFieldValueEN = 'Localized Draft Content EN'
+      const localizedFieldValueES = 'Localized Draft Content ES'
+
+      const draftPost = await payload.create({
+        collection: postsSlug,
+        data: {
+          title: 'Draft with Localized Field',
+          _status: 'draft',
+        },
+      })
+
+      await payload.update({
+        collection: postsSlug,
+        id: draftPost.id,
+        locale: 'en',
+        data: {
+          localizedField: localizedFieldValueEN,
+          _status: 'draft',
+        },
+        draft: true,
+      })
+
+      await payload.update({
+        collection: postsSlug,
+        id: draftPost.id,
+        locale: 'es',
+        data: {
+          localizedField: localizedFieldValueES,
+          _status: 'draft',
+        },
+        draft: true,
+      })
+
+      await page.goto(postsUrl.edit(draftPost.id))
+
+      const threeDotMenu = page.locator('.doc-controls__popup')
+      await expect(threeDotMenu).toBeVisible()
+      await threeDotMenu.click()
+
+      await page.locator('.popup__content #action-delete').click()
+
+      await page.locator('.delete-document #confirm-action').click()
+
+      await expect(page.locator('.payload-toast-container .toast-success')).toHaveText(
+        'Post "Draft with Localized Field" moved to trash.',
+      )
+      await closeAllToasts(page)
+
+      await page.goto(postsUrl.trashEdit(draftPost.id))
+      await page.waitForURL(/\/posts\/trash\//)
+
+      const localizedFieldInput = page.locator('#field-localizedField')
+      await expect(localizedFieldInput).toBeVisible()
+      await expect(localizedFieldInput).toHaveValue(localizedFieldValueEN)
+
+      await changeLocale(page, 'es')
+      await expect(localizedFieldInput).toHaveValue(localizedFieldValueES)
+    })
+
     test('should preserve localized field data for all locales when bulk trashing draft documents', async ({
       page,
     }) => {
